@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class Prescricao {
     private int idPrescricao;
     private Consulta consulta;
-    private ArrayList<Medicamento> medicamentosPrescritos;
+    private ArrayList<Medicamento> medicamentosPrescritos;//associacao do tipo "tem varios"
     private ArrayList<Exame> examesPrescritos;
 
     public Prescricao(int id, Consulta consulta) {
