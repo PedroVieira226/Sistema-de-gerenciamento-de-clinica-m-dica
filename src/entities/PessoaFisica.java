@@ -1,16 +1,21 @@
 package entities;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 
-public abstract class PessoaFisica {
+public abstract class PessoaFisica {//classe abstrata que possui atributos que as classes Paciente e Médico tem em comum(Herança)
     private String nome;
     private String cpf;
     private Date dataDeNascimento;
+    private ArrayList<Object> historico;
 
     public PessoaFisica(String nome, String cpf, Date dataDeNascimento) {
         this.nome = nome;
         this.cpf = cpf;
         this.dataDeNascimento = dataDeNascimento;
+        this.historico = new ArrayList<>();
     }
 
     public String getNome() {
@@ -35,5 +40,9 @@ public abstract class PessoaFisica {
 
     public void setDataDeNascimento(Date dataDeNascimento) {
         this.dataDeNascimento = dataDeNascimento;
+    }
+
+    public ArrayList<Object> getHistorico() {
+        return historico;
     }
 }
