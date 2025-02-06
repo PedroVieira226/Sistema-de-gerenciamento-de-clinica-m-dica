@@ -8,8 +8,7 @@ public class Prescricao {
     private ArrayList<Medicamento> medicamentosPrescritos;//associacao do tipo "tem varios"
     private ArrayList<Exame> examesPrescritos;
 
-    public Prescricao(int id, Consulta consulta) {
-        this.idPrescricao = id;
+    public Prescricao( Consulta consulta) {
         this.consulta = consulta;
         this.medicamentosPrescritos = new ArrayList<>();
         this.examesPrescritos = new ArrayList<>();
