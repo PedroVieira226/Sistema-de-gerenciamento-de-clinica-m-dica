@@ -3,16 +3,18 @@ package entities;
 import java.util.Date;
 
 public class Medico extends PessoaFisica{
+    private static Integer actualId = 0;
+
     private Integer idMedico;
     private String crm;
     private String especialidade;
 
 
-    public Medico(String nome, String cpf, Date dataDeNascimento, String crm, String especialidade, Integer idMedico) {
+    public Medico(String nome, String cpf, Date dataDeNascimento, String crm, String especialidade) {
         super(nome, cpf, dataDeNascimento);
         this.crm = crm;
         this.especialidade = especialidade;
-        this.idMedico = idMedico;
+        this.idMedico = actualId++;
     }
 
     @Override

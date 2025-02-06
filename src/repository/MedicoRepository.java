@@ -9,7 +9,6 @@ import java.util.List;
 
 public class MedicoRepository {
     private List<Medico> medicos = new ArrayList<>();
-    private int idMedico = 1;
 
     public void createMedico(Medico medico) throws CpfJaCadastradoException, EspecialidadeInvalidaException {
         // Verifica se já existe um médico com o mesmo CPF
@@ -19,10 +18,7 @@ public class MedicoRepository {
             }
         }
 
-        // Adiciona o médico à lista e incrementa o ID
         medicos.add(medico);
-        medico.setIdMedico(idMedico);
-        idMedico++;
     }
 
     public List<Medico> listAllMedicos() {
