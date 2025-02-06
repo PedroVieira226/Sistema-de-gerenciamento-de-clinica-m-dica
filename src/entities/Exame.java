@@ -18,6 +18,14 @@ public class Exame {
         this.precoDoExame = precoDoExame;
     }
 
+    public int getIdExame() {
+        return idExame;
+    }
+
+    public void setIdExame(int idExame) {
+        this.idExame = idExame;
+    }
+
     public String getTipoDoExame() {
         return tipoDoExame;
     }
