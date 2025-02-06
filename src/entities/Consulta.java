@@ -8,6 +8,7 @@ import java.util.Date;
 
 public class Consulta {
     private int idConsulta;
+    private String tipoConsulta;
     private Date dataDaConsulta;
     private LocalDateTime horarioDeInicio;
     private LocalDateTime duracaoDaConsulta;
@@ -17,12 +18,33 @@ public class Consulta {
     private Prescricao prescricaoDaConsulta;
     private StatusConsulta statusConsultaDaConsulta;
 
+    public Consulta(String tipoConsulta, Date dataDaConsulta, LocalDateTime horarioDeInicio,
+                    LocalDateTime duracaoDaConsulta, Paciente pacienteDaConsulta, Medico medicoDaConsulta, Double valorConsulta, Prescricao prescricaoDaConsulta, StatusConsulta statusConsultaDaConsulta) {
+        this.tipoConsulta = tipoConsulta;
+        this.dataDaConsulta = dataDaConsulta;
+        this.horarioDeInicio = horarioDeInicio;
+        this.duracaoDaConsulta = duracaoDaConsulta;
+        this.pacienteDaConsulta = pacienteDaConsulta;
+        this.medicoDaConsulta = medicoDaConsulta;
+        this.valorConsulta = valorConsulta;
+        this.prescricaoDaConsulta = prescricaoDaConsulta;
+        this.statusConsultaDaConsulta = statusConsultaDaConsulta;
+    }
+
     public int getIdConsulta() {
         return idConsulta;
     }
 
     public void setIdConsulta(int idConsulta) {
         this.idConsulta = idConsulta;
+    }
+
+    public String getTipoConsulta() {
+        return tipoConsulta;
+    }
+
+    public void setTipoConsulta(String tipoConsulta) {
+        this.tipoConsulta = tipoConsulta;
     }
 
     public Date getDataDaConsulta() {
