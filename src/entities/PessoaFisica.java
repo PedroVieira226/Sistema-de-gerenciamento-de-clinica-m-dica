@@ -45,4 +45,7 @@ public abstract class PessoaFisica {//classe abstrata que possui atributos que a
     public ArrayList<Object> getHistorico() {
         return historico;
     }
+
+    public void adicionarConsultaAoHistorico(Consulta consulta) {}
+
 }

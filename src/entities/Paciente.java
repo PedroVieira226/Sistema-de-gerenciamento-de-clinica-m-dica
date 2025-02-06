@@ -9,4 +9,18 @@ public class Paciente extends PessoaFisica{
         super(nome, cpf, dataDeNascimento);
         this.idPaciente = idPaciente;
     }
+
+    public Integer getIdPaciente() {
+        return idPaciente;
+    }
+
+    public void setIdPaciente(Integer idPaciente) {
+        this.idPaciente = idPaciente;
+    }
+
+    @Override
+    public void adicionarConsultaAoHistorico(Consulta consulta) {
+        getHistorico().add(consulta);
+    }
+
 }

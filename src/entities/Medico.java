@@ -14,4 +14,9 @@ public class Medico extends PessoaFisica{
         this.especialidade = especialidade;
         this.idMedico = idMedico;
     }
+
+    @Override
+    public void adicionarConsultaAoHistorico(Consulta consulta) {
+        getHistorico().add(consulta);
+    }
 }
