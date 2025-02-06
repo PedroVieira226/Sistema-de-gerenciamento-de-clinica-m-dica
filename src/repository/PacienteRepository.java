@@ -8,7 +8,6 @@ import java.util.List;
 
 public class PacienteRepository {
     private List<Paciente> pacientes = new ArrayList<>();
-    private int idPaciente = 1;
 
     public void createPaciente(Paciente paciente) throws CpfJaCadastradoException {
         // Verifica se já existe um paciente com o mesmo CPF
@@ -17,9 +16,8 @@ public class PacienteRepository {
                 throw new CpfJaCadastradoException("Já existe um paciente com este CPF.");
             }
         }
+
         pacientes.add(paciente);
-        paciente.setIdPaciente(idPaciente);
-        idPaciente++;
     }
 
     public List<Paciente> listAllPacientes() {
