@@ -14,11 +14,11 @@ public class Prescricao {
         this.examesPrescritos = new ArrayList<>();
     }
 
-    public int getId() {
+    public int getIdPrescricao() {
         return idPrescricao;
     }
 
-    public void setId(int id) {
+    public void setIdPrescricao(int id) {
         this.idPrescricao = id;
     }
 
