@@ -14,18 +14,6 @@ public class ConsultaRepository {
     private int idConsulta = 1;
 
     public void createConsulta(Consulta consulta){
-        if(consulta.getMedicoDaConsulta().getEspecialidade() != consulta.getTipoConsulta()){
-            throw new EspecialidadeInvalidaException("Médico não possui a especialidade necessária" +
-                    "para a consulta!");
-        }
-        if(medicoPossuiConsultaNoHoario(consulta, consultas)){
-            throw new HorarioIndisponivelException("Médico não esta disponível neste horário!");
-        }
-        if(pacientePossuiConsultaNoDia(consulta, consultas)){
-            throw new PacientePossuiConsultaNoMesmoDIa("O paciente ja possui uma consulta nesse dia!");
-        }
-
-
         consultas.add(consulta);
         consulta.setIdConsulta(idConsulta);
         idConsulta++;
@@ -56,24 +44,6 @@ public class ConsultaRepository {
     public void deleteConsulta(Consulta consulta) {
         consultas.remove(consulta);
     }
-
-    public Boolean medicoPossuiConsultaNoHoario(Consulta consulta,
-                                                ArrayList<Consulta> consultas) {
-        for(Consulta c : consultas){
-            if(c.getDataDaConsulta() == consulta.getDataDaConsulta()
-                    && c.getHorarioDeInicio() == consulta.getHorarioDeInicio()){
-                return true;
-            }
-        }return false;
-    }
-    public Boolean pacientePossuiConsultaNoDia(Consulta consulta,
-                                               ArrayList<Consulta> consultas){
-        for(Consulta c : consultas){
-            if(c.getDataDaConsulta() == consulta.getDataDaConsulta()){
-                return true;
-            }
-        }return false;}
-
 }
 
 
