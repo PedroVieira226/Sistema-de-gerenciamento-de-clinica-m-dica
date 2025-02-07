@@ -11,7 +11,6 @@ import java.util.List;
 
 public class ConsultaRepository {
     private ArrayList<Consulta> consultas = new ArrayList<>();
-    private int idConsulta = 1;
 
     public void createConsulta(Consulta consulta){
         consultas.add(consulta);
