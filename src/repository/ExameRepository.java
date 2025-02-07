@@ -7,12 +7,9 @@ import java.util.List;
 
 public class ExameRepository {
     private List<Exame> exames = new ArrayList<>();
-    private int idExame = 1;
 
     public void createExame(Exame exame) {
         exames.add(exame);
-        exame.setIdExame(idExame);
-        idExame++;
     }
 
     public List<Exame> listAllExames() {
