@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.Date;
 
 public class Consulta {
+    private static Integer actualId = 0;
     private int idConsulta;
     private String tipoConsulta;
     private Date dataDaConsulta;
@@ -29,14 +30,11 @@ public class Consulta {
         this.valorConsulta = valorConsulta;
         this.prescricaoDaConsulta = prescricaoDaConsulta;
         this.statusConsultaDaConsulta = statusConsultaDaConsulta;
+        this.idConsulta = actualId++;
     }
 
     public int getIdConsulta() {
         return idConsulta;
-    }
-
-    public void setIdConsulta(int idConsulta) {
-        this.idConsulta = idConsulta;
     }
 
     public String getTipoConsulta() {

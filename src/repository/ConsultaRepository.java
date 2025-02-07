@@ -15,8 +15,6 @@ public class ConsultaRepository {
 
     public void createConsulta(Consulta consulta){
         consultas.add(consulta);
-        consulta.setIdConsulta(idConsulta);
-        idConsulta++;
     }
 
     public List<Consulta> listAllConsultas() {
