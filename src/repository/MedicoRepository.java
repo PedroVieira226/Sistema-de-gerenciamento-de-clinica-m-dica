@@ -27,6 +27,15 @@ public class MedicoRepository {
         return null;
     }
 
+    public Medico readMedico(String cpf){
+        for (Medico m : medicos){
+            if (m.getCpf().equals(cpf)){
+                return m;
+            }
+        }
+        return null;
+    }
+
     public void updateMedico(Medico medico) {
         for (int i = 0; i < medicos.size(); i++) {
             if (medicos.get(i).getIdMedico() == medico.getIdMedico()) {

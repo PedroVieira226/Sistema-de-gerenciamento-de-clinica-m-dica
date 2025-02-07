@@ -26,6 +26,15 @@ public class PacienteRepository {
         return null;
     }
 
+    public Paciente readPaciente(String cpf){
+        for (Paciente p : pacientes){
+            if (p.getCpf().equals(cpf)){
+                return p;
+            }
+        }
+        return null;
+    }
+
     public void updatePaciente(Paciente paciente) {
         for (int i = 0; i < pacientes.size(); i++) {
             if (pacientes.get(i).getIdPaciente() == paciente.getIdPaciente()) {
