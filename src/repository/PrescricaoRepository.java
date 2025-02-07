@@ -7,12 +7,9 @@ import java.util.List;
 
 public class PrescricaoRepository {
     private List<Prescricao> prescricoes = new ArrayList<>();
-    private int idPrescricao = 1;
 
     public void createPrescricao(Prescricao prescricao) {
         prescricoes.add(prescricao);
-        prescricao.setIdPrescricao(idPrescricao);
-        idPrescricao++;
     }
 
     public List<Prescricao> listAllPrescricoes() {
