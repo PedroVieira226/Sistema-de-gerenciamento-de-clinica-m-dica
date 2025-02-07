@@ -4,17 +4,34 @@ import entities.Medicamento;
 
 import java.util.ArrayList;
 import java.util.List;
+/**
+ * Adiciona um novo medicamento ao repositório.
+ *
+ * @param medicamento O medicamento a ser adicionado.
+ */
 
 public class MedicamentoRepository {
     private List<Medicamento> medicamentos = new ArrayList<>();
     private int idMedicamento = 1;
 
+    /**
+     * Retorna uma lista de todos os medicamentos cadastrados.
+     *
+     * @return Uma lista de medicamentos.
+     */
     public void createMedicamento(Medicamento medicamento) {
         medicamentos.add(medicamento);
         medicamento.setIdMedicamento(idMedicamento);
         idMedicamento++;
     }
 
+
+    /**
+     * Busca um medicamento pelo ID.
+     *
+     * @param id O ID do medicamento a ser buscado.
+     * @return O medicamento encontrado, ou null se não existir.
+     */
     public List<Medicamento> listAllMedicamentos() {
         return medicamentos;
     }
@@ -28,6 +45,11 @@ public class MedicamentoRepository {
         return null;
     }
 
+    /**
+     * Atualiza os dados de um medicamento existente.
+     *
+     * @param medicamento O medicamento com os dados atualizados.
+     */
     public void updateMedicamento(Medicamento medicamento) {
         for (int i = 0; i < medicamentos.size(); i++) {
             if (medicamentos.get(i).getIdMedicamento() == medicamento.getIdMedicamento()) {
@@ -37,6 +59,11 @@ public class MedicamentoRepository {
         }
     }
 
+    /**
+     * Remove um medicamento do repositório.
+     *
+     * @param medicamento O medicamento a ser removido.
+     */
     public void deleteMedicamento(Medicamento medicamento) {
         medicamentos.remove(medicamento);
     }
