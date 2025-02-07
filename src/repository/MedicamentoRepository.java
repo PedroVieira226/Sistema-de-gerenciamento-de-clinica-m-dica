@@ -12,7 +12,6 @@ import java.util.List;
 
 public class MedicamentoRepository {
     private List<Medicamento> medicamentos = new ArrayList<>();
-    private int idMedicamento = 1;
 
     /**
      * Retorna uma lista de todos os medicamentos cadastrados.
@@ -21,8 +20,6 @@ public class MedicamentoRepository {
      */
     public void createMedicamento(Medicamento medicamento) {
         medicamentos.add(medicamento);
-        medicamento.setIdMedicamento(idMedicamento);
-        idMedicamento++;
     }
 
 

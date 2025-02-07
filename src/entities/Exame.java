@@ -3,6 +3,7 @@ package entities;
 import java.util.Date;
 
 public class Exame {
+    private static Integer actualId = 0;
     private int idExame;
     private String tipoDoExame;
     private Date dataDePrescricao;
@@ -11,6 +12,7 @@ public class Exame {
     private Double precoDoExame;
 
     public Exame(String tipoDoExame, Date dataDePrescricao, Date dataDeRealizacao, String resultadoDoExame, Double precoDoExame) {
+        this.idExame = actualId++;
         this.tipoDoExame = tipoDoExame;
         this.dataDePrescricao = dataDePrescricao;
         this.dataDeRealizacao = dataDeRealizacao;
@@ -22,9 +24,6 @@ public class Exame {
         return idExame;
     }
 
-    public void setIdExame(int idExame) {
-        this.idExame = idExame;
-    }
 
     public String getTipoDoExame() {
         return tipoDoExame;
