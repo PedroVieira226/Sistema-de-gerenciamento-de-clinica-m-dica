@@ -10,13 +10,6 @@ public class PacienteRepository {
     private List<Paciente> pacientes = new ArrayList<>();
 
     public void createPaciente(Paciente paciente) throws CpfJaCadastradoException {
-        // Verifica se já existe um paciente com o mesmo CPF
-        for (Paciente p : pacientes) {
-            if (p.getCpf().equals(paciente.getCpf())) {
-                throw new CpfJaCadastradoException("Já existe um paciente com este CPF.");
-            }
-        }
-
         pacientes.add(paciente);
     }
 
