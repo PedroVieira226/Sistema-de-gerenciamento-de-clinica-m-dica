@@ -11,13 +11,6 @@ public class MedicoRepository {
     private List<Medico> medicos = new ArrayList<>();
 
     public void createMedico(Medico medico) throws CpfJaCadastradoException, EspecialidadeInvalidaException {
-        // Verifica se já existe um médico com o mesmo CPF
-        for (Medico m : medicos) {
-            if (m.getCpf().equals(medico.getCpf())) {
-                throw new CpfJaCadastradoException("Já existe um médico com este CPF.");
-            }
-        }
-
         medicos.add(medico);
     }
 
