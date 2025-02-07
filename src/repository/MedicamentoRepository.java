@@ -7,12 +7,9 @@ import java.util.List;
 
 public class MedicamentoRepository {
     private List<Medicamento> medicamentos = new ArrayList<>();
-    private int idMedicamento = 1;
 
     public void createMedicamento(Medicamento medicamento) {
         medicamentos.add(medicamento);
-        medicamento.setIdMedicamento(idMedicamento);
-        idMedicamento++;
     }
 
     public List<Medicamento> listAllMedicamentos() {

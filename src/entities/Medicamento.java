@@ -1,11 +1,12 @@
 package entities;
 
 public class Medicamento {
+    private static Integer actualId = 0;
     private int idMedicamento;
     private String nome;
 
-    public Medicamento(int idMedicamento, String nome) {
-        this.idMedicamento = idMedicamento;
+    public Medicamento(String nome) {
+        this.idMedicamento = actualId++;
         this.nome = nome;
     }
 
