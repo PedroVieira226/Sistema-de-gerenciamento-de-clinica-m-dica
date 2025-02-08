@@ -4,8 +4,9 @@ import javax.swing.*;
 import java.util.Date;
 import java.util.List;
 
-import entities.Paciente;
+import entities.*;
 import controller.PacienteController;
+import controller.ConsultaController;
 import excptions.CpfJaCadastradoException;
 
 /**
@@ -14,14 +15,16 @@ import excptions.CpfJaCadastradoException;
 public class PacienteView extends BaseView {
 
     private PacienteController pacienteController;
+    private ConsultaController consultaController;
 
     /**
      * Construtor para inicializar o controlador de pacientes e exibir o menu.
      *
      * @param pacienteController O controlador de pacientes.
      */
-    public PacienteView(PacienteController pacienteController) {
+    public PacienteView(PacienteController pacienteController, ConsultaController consultaController) {
         this.pacienteController = pacienteController;
+       this.consultaController = consultaController;
         showMenu();
     }
 
@@ -33,7 +36,9 @@ public class PacienteView extends BaseView {
                 "2. Atualizar Paciente\n" +
                 "3. Remover Paciente\n" +
                 "4. Buscar Paciente por CPF\n" +
-                "5. Sair";
+                "5. Listar todos os Pacientes\n" +
+                "6. Detalhes do Paciente\n" + // Nova opção
+                "7. Sair";
         while (true) {
             String option = readString(menu);
             switch (option) {
@@ -53,6 +58,9 @@ public class PacienteView extends BaseView {
                     listAllPacientes();
                     break;
                 case "6":
+                    showPacienteDetails();
+                    break;
+                case "7":
                     return;
                 default:
                     JOptionPane.showMessageDialog(null, "Opção inválida!");
@@ -141,5 +149,52 @@ public class PacienteView extends BaseView {
             }
             JOptionPane.showMessageDialog(null, sb.toString());
         }
+    }
+    private void showPacienteDetails() {
+        String cpf = readString("CPF do paciente:");
+        Paciente paciente = pacienteController.read(cpf);
+        if (paciente == null) {
+            JOptionPane.showMessageDialog(null, "Paciente não encontrado!");
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("=== Detalhes do Paciente ===\n")
+                .append("Nome: ").append(paciente.getNome()).append("\n")
+                .append("CPF: ").append(paciente.getCpf()).append("\n")
+                .append("Data de Nascimento: ").append(dateFormat.format(paciente.getDataDeNascimento())).append("\n\n");
+
+        // Busca consultas do paciente
+        List<Consulta> consultas = consultaController.listAll();
+        boolean hasConsultas = false;
+
+        for (Consulta consulta : consultas) {
+            if (consulta.getPacienteDaConsulta().getCpf().equals(cpf)) {
+                hasConsultas = true;
+                sb.append("Consulta ID: ").append(consulta.getIdConsulta()).append("\n")
+                        .append("Data: ").append(dateFormat.format(consulta.getDataDaConsulta())).append("\n")
+                        .append("Médico: ").append(consulta.getMedicoDaConsulta().getNome()).append("\n")
+                        .append("Especialidade: ").append(consulta.getMedicoDaConsulta().getEspecialidade()).append("\n");
+
+                Prescricao prescricao = consulta.getPrescricaoDaConsulta();
+                if (prescricao != null) {
+                    sb.append("Exames Prescritos:\n");
+                    for (Exame exame : prescricao.getExamesPrescritos()) {
+                        sb.append("  - ").append(exame.getTipoDoExame()).append(" (ID: ").append(exame.getIdExame()).append(")\n");
+                    }
+                    sb.append("Medicamentos Prescritos:\n");
+                    for (Medicamento medicamento : prescricao.getMedicamentosPrescritos()) {
+                        sb.append("  - ").append(medicamento.getNome()).append(" (ID: ").append(medicamento.getIdMedicamento()).append(")\n");
+                    }
+                }
+                sb.append("\n");
+            }
+        }
+
+        if (!hasConsultas) {
+            sb.append("Nenhuma consulta registrada.\n");
+        }
+
+        JOptionPane.showMessageDialog(null, sb.toString());
     }
 }
