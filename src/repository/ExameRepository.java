@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ExameRepository {
-    private List<Exame> exames = new ArrayList<>();
+    private static List<Exame> exames = new ArrayList<>();
 
     /**
      * Adiciona um novo exame ao repositório.

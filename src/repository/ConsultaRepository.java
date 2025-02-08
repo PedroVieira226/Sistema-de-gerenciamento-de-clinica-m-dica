@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ConsultaRepository {
-    private ArrayList<Consulta> consultas = new ArrayList<>();
+    private static ArrayList<Consulta> consultas = new ArrayList<>();
 
     public void createConsulta(Consulta consulta){
         consultas.add(consulta);

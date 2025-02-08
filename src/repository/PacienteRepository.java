@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PacienteRepository {
-    private List<Paciente> pacientes = new ArrayList<>();
+    private static List<Paciente> pacientes = new ArrayList<>();
 
     public void createPaciente(Paciente paciente) throws CpfJaCadastradoException {
         pacientes.add(paciente);

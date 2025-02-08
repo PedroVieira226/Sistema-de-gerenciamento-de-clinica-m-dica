@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MedicoRepository {
-    private List<Medico> medicos = new ArrayList<>();
+    private static List<Medico> medicos = new ArrayList<>();
 
     public void createMedico(Medico medico) throws CpfJaCadastradoException, EspecialidadeInvalidaException {
         medicos.add(medico);

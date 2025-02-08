@@ -11,7 +11,7 @@ import java.util.List;
  */
 
 public class MedicamentoRepository {
-    private List<Medicamento> medicamentos = new ArrayList<>();
+    private static List<Medicamento> medicamentos = new ArrayList<>();
 
     /**
      * Retorna uma lista de todos os medicamentos cadastrados.

@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PrescricaoRepository {
-    private List<Prescricao> prescricoes = new ArrayList<>();
+    private static List<Prescricao> prescricoes = new ArrayList<>();
 
     public void createPrescricao(Prescricao prescricao) {
         prescricoes.add(prescricao);
