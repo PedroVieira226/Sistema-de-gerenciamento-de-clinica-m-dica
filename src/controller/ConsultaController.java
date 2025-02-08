@@ -1,9 +1,6 @@
 package controller;
 
-import entities.Consulta;
-import entities.Medico;
-import entities.Paciente;
-import entities.Prescricao;
+import entities.*;
 import enums.StatusConsulta;
 import excptions.EspecialidadeInvalidaException;
 import excptions.HorarioIndisponivelException;
@@ -11,12 +8,14 @@ import excptions.PacientePossuiConsultaNoMesmoDIa;
 import repository.ConsultaRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class ConsultaController {
     private ConsultaRepository repository;
     private MedicoController medicoController;
     private PacienteController pacienteController;
+    private PrescricaoController prescricaoController;
 
     ConsultaController(){
         repository = new ConsultaRepository();
@@ -45,7 +44,9 @@ public class ConsultaController {
     }
 
     public void create(String tipoConsulta, Date dataConsulta, LocalDateTime horarioInicio, LocalDateTime duracao,
-                       String pacienteCpf, String cpfMedico, double valorConsulta, Prescricao prescricao, StatusConsulta statusConsulta){
+                       String pacienteCpf, String cpfMedico, double valorConsulta, StatusConsulta statusConsulta,
+                       ArrayList<Integer> medicamentosPrescritosIds, ArrayList<Integer> examesPrescritosIds){
+
         if(!medicoController.medicoExiste(cpfMedico) || !pacienteController.pacienteExiste(pacienteCpf)){
             if (medicoNaoPossuiEspecialidade(tipoConsulta, cpfMedico)){
                 throw new EspecialidadeInvalidaException("Médico não possui a especialidade necessária para a consulta!");
@@ -57,7 +58,8 @@ public class ConsultaController {
                 throw new PacientePossuiConsultaNoMesmoDIa("O paciente ja possui uma consulta nesse dia!");
             }
 
-            repository.createConsulta(new Consulta(tipoConsulta, dataConsulta, horarioInicio, duracao, pacienteController.read(pacienteCpf), medicoController.read(pacienteCpf), valorConsulta, prescricao, statusConsulta));
+            repository.createConsulta(new Consulta(tipoConsulta, dataConsulta, horarioInicio, duracao, pacienteController.read(pacienteCpf),
+                    medicoController.read(pacienteCpf), valorConsulta, prescricaoController.createFromIds(medicamentosPrescritosIds, examesPrescritosIds), statusConsulta));
         } else{
             throw new IllegalArgumentException("Os ID(s) de médico ou paciente informados, não correspondem a de objetos existentes.");
         }
