@@ -1,10 +1,12 @@
 package controller;
 
+import entities.Medico;
 import entities.Paciente;
 import excptions.CpfJaCadastradoException;
 import repository.PacienteRepository;
 
 import java.util.Date;
+import java.util.List;
 
 public class PacienteController {
     private PacienteRepository repository;
@@ -27,6 +29,9 @@ public class PacienteController {
             throw new CpfJaCadastradoException("Já existe um paciente com este CPF.");
         }
         repository.createPaciente(new Paciente(nome, cpf, dataDeNascimento));
+    }
+    public List<Paciente> listAll(){
+        return repository.listAllPacientes();
     }
 
     public Paciente read(int id){
