@@ -1,9 +1,11 @@
 package controller;
 
 import entities.Exame;
+import entities.Medico;
 import repository.ExameRepository;
 
 import java.util.Date;
+import java.util.List;
 
 public class ExameController {
     private ExameRepository repository;
@@ -31,4 +33,9 @@ public class ExameController {
     public void delete(Integer id){
         repository.deleteExame(repository.readExame(id));
     }
+
+    public List<Exame> listAll(){
+        return repository.listAllExames();
+    }
+
 }

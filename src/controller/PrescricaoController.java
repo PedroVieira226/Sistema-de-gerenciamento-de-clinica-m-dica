@@ -1,12 +1,10 @@
 package controller;
 
-import entities.Consulta;
-import entities.Exame;
-import entities.Medicamento;
-import entities.Prescricao;
+import entities.*;
 import repository.PrescricaoRepository;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class PrescricaoController {
     private PrescricaoRepository repository;
@@ -55,5 +53,9 @@ public class PrescricaoController {
 
     public void delete(Integer id){
         repository.deletePrescricao(repository.readPrescricao(id));
+    }
+
+    public List<Prescricao> listAll(){
+        return repository.listAllPrescricoes();
     }
 }
