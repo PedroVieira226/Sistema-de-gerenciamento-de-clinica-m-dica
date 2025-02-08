@@ -2,6 +2,8 @@ package view;
 
 import javax.swing.*;
 import java.util.Date;
+import java.util.List;
+
 import entities.Paciente;
 import controller.PacienteController;
 import excptions.CpfJaCadastradoException;
@@ -48,6 +50,9 @@ public class PacienteView extends BaseView {
                     searchPacienteByCpf();
                     break;
                 case "5":
+                    listAllPacientes();
+                    break;
+                case "6":
                     return;
                 default:
                     JOptionPane.showMessageDialog(null, "Opção inválida!");
@@ -116,6 +121,25 @@ public class PacienteView extends BaseView {
             JOptionPane.showMessageDialog(null, "Paciente não encontrado!");
         } else {
             JOptionPane.showMessageDialog(null, paciente.toString());
+        }
+    }
+    /**
+     * Exibe todos os pacientes e seus IDs usando JOptionPane.
+     */
+    private void listAllPacientes() {
+        List<Paciente> pacientes = pacienteController.listAll();
+        if (pacientes.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Nenhum paciente cadastrado.");
+        } else {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Lista de Pacientes:\n");
+            for (Paciente paciente : pacientes) {
+                sb.append("ID: ").append(paciente.getIdPaciente())
+                        .append(", Nome: ").append(paciente.getNome())
+                        .append(", CPF: ").append(paciente.getCpf())
+                        .append(", Data de Nascimento: ").append(paciente.getDataDeNascimento()).append("\n");
+            }
+            JOptionPane.showMessageDialog(null, sb.toString());
         }
     }
 }
