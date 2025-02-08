@@ -26,7 +26,7 @@ public class MedicoView extends BaseView {
     /**
      * Exibe o menu principal para interação com o usuário.
      */
-    private void showMenu() {
+    public void showMenu() {
         String menu = "1. Adicionar Médico\n" +
                 "2. Atualizar Médico\n" +
                 "3. Remover Médico\n" +

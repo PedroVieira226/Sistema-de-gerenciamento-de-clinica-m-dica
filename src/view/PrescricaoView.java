@@ -36,7 +36,7 @@ public class PrescricaoView extends BaseView {
     /**
      * Exibe o menu principal para interação com o usuário.
      */
-    private void showMenu() {
+    public void showMenu() {
         String menu = "1. Adicionar Prescrição\n" +
                 "2. Atualizar Prescrição\n" +
                 "3. Remover Prescrição\n" +
