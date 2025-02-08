@@ -10,6 +10,7 @@ import repository.ConsultaRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class ConsultaController {
     private ConsultaRepository repository;
@@ -80,4 +81,10 @@ public class ConsultaController {
     public void delete(int id){
         repository.deleteConsulta(repository.readConsulta(id));
     }
+
+
+    public List<Consulta> listAll(){
+        return repository.listAllConsultas();
+    }
+
 }
