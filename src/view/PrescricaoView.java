@@ -28,8 +28,6 @@ public class PrescricaoView extends BaseView {
      */
     public PrescricaoView(PrescricaoController prescricaoController, MedicamentoController medicamentoController, ExameController exameController) {
         this.prescricaoController = prescricaoController;
-        this.medicamentoController = medicamentoController;
-        this.exameController = exameController;
         showMenu();
     }
 
