@@ -8,167 +8,163 @@ import controller.ExameController;
 
 /**
  * Classe para a visualização e interação com Exames.
+
  */
 public class ExameView extends BaseView {
+    private final ExameController controller;
+    private static final String ENTIDADE = "Exame";
 
-    private ExameController exameController;
-
-    /**
-     * Construtor para inicializar o controlador de exames e exibir o menu.
-     *
-     * @param exameController O controlador de exames.
-     */
-    public ExameView(ExameController exameController) {
-        this.exameController = exameController;
+    public ExameView(ExameController controller) {
+        this.controller = controller;
         showMenu();
     }
 
-    /**
-     * Exibe o menu principal para interação com o usuário.
-     */
     public void showMenu() {
-        String menu = "1. Adicionar Exame\n" +
-                "2. Atualizar Exame\n" +
-                "3. Remover Exame\n" +
-                "4. Buscar Exame por ID\n" +
-                "5. Listar todos os Exames\n" +
-                "6. Sair";
+        String menu = String.format("""
+            1. Adicionar %s
+            2. Atualizar %s
+            3. Remover %s
+            4. Buscar %s
+            5. Listar %ss
+            6. Sair""", ENTIDADE, ENTIDADE, ENTIDADE, ENTIDADE, ENTIDADE);
+
         while (true) {
             String option = readString(menu);
+            if (option == null) return;
+
             switch (option) {
-                case "1":
-                    addExame();
-                    break;
-                case "2":
-                    updateExame();
-                    break;
-                case "3":
-                    removeExame();
-                    break;
-                case "4":
-                    searchExameById();
-                    break;
-                case "5":
-                    listAllExames();
-                    break;
-                case "6":
-                    return;
-                default:
-                    JOptionPane.showMessageDialog(null, "Opção inválida!");
+                case "1" -> adicionar();
+                case "2" -> atualizar();
+                case "3" -> remover();
+                case "4" -> buscar();
+                case "5" -> listar();
+                case "6" -> { return; }
+                default -> showError("Opção inválida!");
             }
         }
     }
 
-    /**
-     * Adiciona um novo exame solicitando dados ao usuário.
-     */
-    private void addExame() {
-        String tipoDoExame = readString("Tipo do Exame:");
-        Date dataDePrescricao = readDate("Data de Prescrição do Exame:");
-        Date dataDeRealizacao = readDate("Data de Realização do Exame:");
-        String resultadoDoExame = readString("Resultado do Exame:");
-        Double precoDoExame = readDoubleInput("Preço do Exame:");
+    private void adicionar() {
+        String tipo = readString("Tipo do " + ENTIDADE + ":");
+        if (tipo == null || tipo.isEmpty()) {
+            showError("Tipo é obrigatório!");
+            return;
+        }
+
+        Date dataPrescricao = readDate("Data de Prescrição");
+        if (dataPrescricao == null) return;
+
+        Date dataRealizacao = readDate("Data de Realização");
+        if (dataRealizacao == null) return;
+
+        String resultado = readString("Resultado do " + ENTIDADE + ":");
+        if (resultado == null) return;
+
+        Double preco = readDouble("Preço do " + ENTIDADE + ":");
+        if (preco == null || preco <= 0) {
+            showError("Preço deve ser maior que zero!");
+            return;
+        }
 
         try {
-            exameController.create(tipoDoExame, dataDePrescricao, dataDeRealizacao, resultadoDoExame, precoDoExame);
-            JOptionPane.showMessageDialog(null, "Exame adicionado com sucesso!");
+            controller.create(tipo, dataPrescricao, dataRealizacao, resultado, preco);
+            showSuccess(ENTIDADE + " " + SUCESSO_ADICIONAR);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
+            showError(e.getMessage());
         }
     }
 
-    /**
-     * Atualiza os dados de um exame existente solicitando dados ao usuário.
-     */
-    private void updateExame() {
-        Integer id = readInt("ID do exame a ser atualizado:");
-        Exame exame = exameController.read(id);
+    private void atualizar() {
+        Integer id = readInt("ID do " + ENTIDADE + " a ser atualizado:");
+        if (id == null) return;
+
+        Exame exame = controller.read(id);
         if (exame == null) {
-            JOptionPane.showMessageDialog(null, "Exame não encontrado!");
+            showError(ENTIDADE + " " + ERRO_NAO_ENCONTRADO);
             return;
         }
 
-        String tipoDoExame = readString("Novo Tipo do Exame:");
-        Date dataDePrescricao = readDate("Nova Data de Prescrição do Exame:");
-        Date dataDeRealizacao = readDate("Nova Data de Realização do Exame:");
-        String resultadoDoExame = readString("Novo Resultado do Exame:");
-        Double precoDoExame = readDoubleInput("Novo Preço do Exame:");
+        String tipo = readString("Novo Tipo do " + ENTIDADE + ":");
+        if (tipo != null && !tipo.isEmpty()) exame.setTipoDoExame(tipo);
 
-        exame.setTipoDoExame(tipoDoExame);
-        exame.setDataDePrescricao(dataDePrescricao);
-        exame.setDataDeRealizacao(dataDeRealizacao);
-        exame.setResultadoDoExame(resultadoDoExame);
-        exame.setPrecoDoExame(precoDoExame);
+        Date dataPrescricao = readDate("Nova Data de Prescrição");
+        if (dataPrescricao != null) exame.setDataDePrescricao(dataPrescricao);
 
-        exameController.update(exame);
+        Date dataRealizacao = readDate("Nova Data de Realização");
+        if (dataRealizacao != null) exame.setDataDeRealizacao(dataRealizacao);
 
-        JOptionPane.showMessageDialog(null, "Exame atualizado com sucesso!");
+        String resultado = readString("Novo Resultado do " + ENTIDADE + ":");
+        if (resultado != null) exame.setResultadoDoExame(resultado);
+
+        Double preco = readDouble("Novo Preço do " + ENTIDADE + ":");
+        if (preco != null && preco > 0) exame.setPrecoDoExame(preco);
+
+        try {
+            controller.update(exame);
+            showSuccess(ENTIDADE + " " + SUCESSO_ATUALIZAR);
+        } catch (Exception e) {
+            showError(e.getMessage());
+        }
     }
 
-    /**
-     * Remove um exame existente solicitando o ID ao usuário.
-     */
-    private void removeExame() {
-        Integer id = readInt("ID do exame a ser removido:");
-        Exame exame = exameController.read(id);
+    private void remover() {
+        Integer id = readInt("ID do " + ENTIDADE + " a ser removido:");
+        if (id == null) return;
+
+        Exame exame = controller.read(id);
         if (exame == null) {
-            JOptionPane.showMessageDialog(null, "Exame não encontrado!");
+            showError(ENTIDADE + " " + ERRO_NAO_ENCONTRADO);
             return;
         }
 
-        exameController.delete(exame);
-        JOptionPane.showMessageDialog(null, "Exame removido com sucesso!");
-    }
+        if (!showConfirmation(CONFIRMAR_REMOCAO)) return;
 
-    /**
-     * Busca um exame pelo ID e exibe suas informações.
-     */
-    private void searchExameById() {
-        Integer id = readInt("ID do exame:");
-        Exame exame = exameController.read(id);
-        if (exame == null) {
-            JOptionPane.showMessageDialog(null, "Exame não encontrado!");
-        } else {
-            JOptionPane.showMessageDialog(null, exame.toString());
+        try {
+            controller.delete(exame);
+            showSuccess(ENTIDADE + " " + SUCESSO_REMOVER);
+        } catch (Exception e) {
+            showError(e.getMessage());
         }
     }
 
-    /**
-     * Exibe todos os exames e seus detalhes usando JOptionPane.
-     */
-    private void listAllExames() {
-        List<Exame> exames = exameController.listAll();
+    private void buscar() {
+        Integer id = readInt("ID do " + ENTIDADE + ":");
+        if (id == null) return;
+
+        Exame exame = controller.read(id);
+        if (exame == null) {
+            showError(ENTIDADE + " " + ERRO_NAO_ENCONTRADO);
+            return;
+        }
+
+        showMessage(formatarExame(exame));
+    }
+
+    private void listar() {
+        List<Exame> exames = controller.listAll();
         if (exames.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Nenhum exame cadastrado.");
-        } else {
-            StringBuilder sb = new StringBuilder();
-            sb.append("Lista de Exames:\n");
-            for (Exame exame : exames) {
-                sb.append("ID: ").append(exame.getIdExame())
-                        .append(", Tipo: ").append(exame.getTipoDoExame())
-                        .append(", Data de Prescrição: ").append(exame.getDataDePrescricao())
-                        .append(", Data de Realização: ").append(exame.getDataDeRealizacao())
-                        .append(", Resultado: ").append(exame.getResultadoDoExame())
-                        .append(", Preço: ").append(exame.getPrecoDoExame()).append("\n");
-            }
-            JOptionPane.showMessageDialog(null, sb.toString());
+            showMessage("Nenhum " + ENTIDADE + " cadastrado.");
+            return;
         }
+
+        StringBuilder sb = new StringBuilder("Lista de " + ENTIDADE + "s:\n\n");
+        exames.forEach(exame -> sb.append(formatarExame(exame)).append("\n"));
+        showMessage(sb.toString());
     }
 
-    /**
-     * Lê um valor Double do usuário.
-     *
-     * @param message A mensagem a ser exibida ao usuário.
-     * @return O valor Double inserido pelo usuário.
-     */
-    private Double readDoubleInput(String message) {
-        while (true) {
-            try {
-                String input = JOptionPane.showInputDialog(message);
-                return Double.parseDouble(input);
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(null, "Entrada inválida. Por favor, insira um número.");
-            }
-        }
+    private String formatarExame(Exame exame) {
+        return String.format("""
+            ID: %d
+            Tipo: %s
+            Data Prescrição: %s
+            Data Realização: %s
+            Resultado: %s
+            Preço: R$ %.2f""",
+                exame.getIdExame(),
+                exame.getTipoDoExame(),
+                formatDate(exame.getDataDePrescricao()),
+                formatDate(exame.getDataDeRealizacao()),
+                exame.getResultadoDoExame(),
+                exame.getPrecoDoExame());
     }
 }
