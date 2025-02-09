@@ -11,7 +11,7 @@ public class PrescricaoController {
     private MedicamentoController medicamentoController;
     private ExameController exameController;
 
-    PrescricaoController(){
+    public PrescricaoController(){
         repository = new PrescricaoRepository();
     }
 

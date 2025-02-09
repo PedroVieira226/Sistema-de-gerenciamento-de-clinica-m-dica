@@ -11,7 +11,7 @@ import java.util.List;
 public class MedicoController {
     private MedicoRepository repository;
 
-    MedicoController(){
+    public MedicoController(){
         this.repository = new MedicoRepository();
     }
 

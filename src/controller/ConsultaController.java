@@ -18,7 +18,7 @@ public class ConsultaController {
     private PacienteController pacienteController;
     private PrescricaoController prescricaoController;
 
-    ConsultaController(){
+    public ConsultaController(){
         repository = new ConsultaRepository();
     }
 

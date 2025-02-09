@@ -8,7 +8,7 @@ import java.util.List;
 public class MedicamentoController {
     private MedicamentoRepository repository;
 
-    MedicamentoController(){
+    public MedicamentoController(){
         repository = new MedicamentoRepository();
     }
 

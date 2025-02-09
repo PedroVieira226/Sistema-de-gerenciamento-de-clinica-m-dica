@@ -11,7 +11,7 @@ import java.util.List;
 public class PacienteController {
     private PacienteRepository repository;
 
-    PacienteController(){
+    public PacienteController(){
         repository = new PacienteRepository();
     }
 

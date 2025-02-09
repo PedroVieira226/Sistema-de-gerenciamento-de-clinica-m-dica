@@ -10,7 +10,7 @@ import java.util.List;
 public class ExameController {
     private ExameRepository repository;
 
-    ExameController(){
+    public ExameController(){
         this.repository = new ExameRepository();
     }
 
