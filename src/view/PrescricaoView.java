@@ -10,7 +10,7 @@ import controller.ExameController;
 
 /**
  * Classe para a visualização e interação com Prescrições.
- 
+
  */
 public class PrescricaoView extends BaseView {
     private final PrescricaoController controller;
