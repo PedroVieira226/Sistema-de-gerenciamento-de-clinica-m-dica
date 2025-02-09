@@ -9,128 +9,130 @@ import controller.MedicamentoController;
  * Classe para a visualização e interação com Medicamentos.
  */
 public class MedicamentoView extends BaseView {
+    private final MedicamentoController controller;
+    private static final String ENTIDADE = "Medicamento";
 
-    private MedicamentoController medicamentoController;
-
-    /**
-     * Construtor para inicializar o controlador de medicamentos e exibir o menu.
-     *
-     * @param medicamentoController O controlador de medicamentos.
-     */
-    public MedicamentoView(MedicamentoController medicamentoController) {
-        this.medicamentoController = medicamentoController;
+    public MedicamentoView(MedicamentoController controller) {
+        this.controller = controller;
         showMenu();
     }
 
-    /**
-     * Exibe o menu principal para interação com o usuário.
-     */
     public void showMenu() {
-        String menu = "1. Adicionar Medicamento\n" +
-                "2. Atualizar Medicamento\n" +
-                "3. Remover Medicamento\n" +
-                "4. Buscar Medicamento por ID\n" +
-                "5. Listar todos os Medicamentos\n" +
-                "6. Sair";
+        String menu = String.format("""
+            1. Adicionar %s
+            2. Atualizar %s
+            3. Remover %s
+            4. Buscar %s
+            5. Listar %ss
+            6. Sair""", ENTIDADE, ENTIDADE, ENTIDADE, ENTIDADE, ENTIDADE);
+
         while (true) {
             String option = readString(menu);
+            if (option == null) return;
+
             switch (option) {
-                case "1":
-                    addMedicamento();
-                    break;
-                case "2":
-                    updateMedicamento();
-                    break;
-                case "3":
-                    removeMedicamento();
-                    break;
-                case "4":
-                    searchMedicamentoById();
-                    break;
-                case "5":
-                    listAllMedicamentos();
-                    break;
-                case "6":
-                    return;
-                default:
-                    JOptionPane.showMessageDialog(null, "Opção inválida!");
+                case "1" -> adicionar();
+                case "2" -> atualizar();
+                case "3" -> remover();
+                case "4" -> buscar();
+                case "5" -> listar();
+                case "6" -> { return; }
+                default -> showError("Opção inválida!");
             }
         }
     }
 
-    /**
-     * Adiciona um novo medicamento solicitando dados ao usuário.
-     */
-    private void addMedicamento() {
-        String nome = readString("Nome do Medicamento:");
-
-        medicamentoController.create(nome);
-        JOptionPane.showMessageDialog(null, "Medicamento adicionado com sucesso!");
-    }
-
-    /**
-     * Atualiza os dados de um medicamento existente solicitando dados ao usuário.
-     */
-    private void updateMedicamento() {
-        Integer id = readInt("ID do medicamento a ser atualizado:");
-        Medicamento medicamento = medicamentoController.read(id);
-        if (medicamento == null) {
-            JOptionPane.showMessageDialog(null, "Medicamento não encontrado!");
+    private void adicionar() {
+        String nome = readString("Nome do " + ENTIDADE + ":");
+        if (nome == null || nome.isEmpty()) {
+            showError("Nome é obrigatório!");
             return;
         }
 
-        String nome = readString("Novo Nome do Medicamento:");
-
-        medicamento = new Medicamento(nome);
-        medicamento.setIdMedicamento(id);
-        medicamentoController.update(medicamento);
-
-        JOptionPane.showMessageDialog(null, "Medicamento atualizado com sucesso!");
+        try {
+            controller.create(nome);
+            showSuccess(ENTIDADE + " " + SUCESSO_ADICIONAR);
+        } catch (Exception e) {
+            showError(e.getMessage());
+        }
     }
 
-    /**
-     * Remove um medicamento existente solicitando o ID ao usuário.
-     */
-    private void removeMedicamento() {
-        Integer id = readInt("ID do medicamento a ser removido:");
-        Medicamento medicamento = medicamentoController.read(id);
+    private void atualizar() {
+        Integer id = readInt("ID do " + ENTIDADE + " a ser atualizado:");
+        if (id == null) return;
+
+        Medicamento medicamento = controller.read(id);
         if (medicamento == null) {
-            JOptionPane.showMessageDialog(null, "Medicamento não encontrado!");
+            showError(ENTIDADE + " " + ERRO_NAO_ENCONTRADO);
             return;
         }
 
-        medicamentoController.delete(medicamento);
-        JOptionPane.showMessageDialog(null, "Medicamento removido com sucesso!");
-    }
+        String nome = readString("Novo Nome do " + ENTIDADE + ":");
+        if (nome == null || nome.isEmpty()) {
+            showError("Nome é obrigatório!");
+            return;
+        }
 
-    /**
-     * Busca um medicamento pelo ID e exibe suas informações.
-     */
-    private void searchMedicamentoById() {
-        Integer id = readInt("ID do medicamento:");
-        Medicamento medicamento = medicamentoController.read(id);
-        if (medicamento == null) {
-            JOptionPane.showMessageDialog(null, "Medicamento não encontrado!");
-        } else {
-            JOptionPane.showMessageDialog(null, medicamento.toString());
+        medicamento.setNome(nome);
+
+        try {
+            controller.update(medicamento);
+            showSuccess(ENTIDADE + " " + SUCESSO_ATUALIZAR);
+        } catch (Exception e) {
+            showError(e.getMessage());
         }
     }
 
-    /**
-     * Exibe todos os medicamentos e seus IDs usando JOptionPane.
-     */
-    private void listAllMedicamentos() {
-        List<Medicamento> medicamentos = medicamentoController.listAll();
+    private void remover() {
+        Integer id = readInt("ID do " + ENTIDADE + " a ser removido:");
+        if (id == null) return;
+
+        Medicamento medicamento = controller.read(id);
+        if (medicamento == null) {
+            showError(ENTIDADE + " " + ERRO_NAO_ENCONTRADO);
+            return;
+        }
+
+        if (!showConfirmation(CONFIRMAR_REMOCAO)) return;
+
+        try {
+            controller.delete(medicamento);
+            showSuccess(ENTIDADE + " " + SUCESSO_REMOVER);
+        } catch (Exception e) {
+            showError(e.getMessage());
+        }
+    }
+
+    private void buscar() {
+        Integer id = readInt("ID do " + ENTIDADE + ":");
+        if (id == null) return;
+
+        Medicamento medicamento = controller.read(id);
+        if (medicamento == null) {
+            showError(ENTIDADE + " " + ERRO_NAO_ENCONTRADO);
+            return;
+        }
+
+        showMessage(formatarMedicamento(medicamento));
+    }
+
+    private void listar() {
+        List<Medicamento> medicamentos = controller.listAll();
         if (medicamentos.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Nenhum medicamento cadastrado.");
-        } else {
-            StringBuilder sb = new StringBuilder();
-            sb.append("Lista de Medicamentos:\n");
-            for (Medicamento medicamento : medicamentos) {
-                sb.append("ID: ").append(medicamento.getIdMedicamento())
-                        .append(", Nome: ").append(medicamento.getNome()).append("\n");
-            }
-            JOptionPane.showMessageDialog(null, sb.toString());
+            showMessage("Nenhum " + ENTIDADE + " cadastrado.");
+            return;
         }
+
+        StringBuilder sb = new StringBuilder("Lista de " + ENTIDADE + "s:\n\n");
+        medicamentos.forEach(medicamento -> sb.append(formatarMedicamento(medicamento)).append("\n"));
+        showMessage(sb.toString());
+    }
+
+    private String formatarMedicamento(Medicamento medicamento) {
+        return String.format("""
+            ID: %d
+            Nome: %s""",
+                medicamento.getIdMedicamento(),
+                medicamento.getNome());
     }
 }

@@ -8,146 +8,171 @@ import controller.MedicoController;
 
 /**
  * Classe para a visualização e interação com Médicos.
+ * @author CaioSoandrd
+ * @version 1.0
+ * @since 2025-02-09
  */
 public class MedicoView extends BaseView {
+    private final MedicoController controller;
+    private static final String ENTIDADE = "Médico";
 
-    private MedicoController medicoController;
-
-    /**
-     * Construtor para inicializar o controlador de médicos e exibir o menu.
-     *
-     * @param medicoController O controlador de médicos.
-     */
-    public MedicoView(MedicoController medicoController) {
-        this.medicoController = medicoController;
+    public MedicoView(MedicoController controller) {
+        this.controller = controller;
         showMenu();
     }
 
-    /**
-     * Exibe o menu principal para interação com o usuário.
-     */
     public void showMenu() {
-        String menu = "1. Adicionar Médico\n" +
-                "2. Atualizar Médico\n" +
-                "3. Remover Médico\n" +
-                "4. Buscar Médico por CPF\n" +
-                "5. Listar todos os Médicos\n" +
-                "6. Sair";
+        String menu = String.format("""
+            1. Adicionar %s
+            2. Atualizar %s
+            3. Remover %s
+            4. Buscar %s
+            5. Listar %ss
+            6. Sair""", ENTIDADE, ENTIDADE, ENTIDADE, ENTIDADE, ENTIDADE);
+
         while (true) {
             String option = readString(menu);
+            if (option == null) return;
+
             switch (option) {
-                case "1":
-                    addMedico();
-                    break;
-                case "2":
-                    updateMedico();
-                    break;
-                case "3":
-                    removeMedico();
-                    break;
-                case "4":
-                    searchMedicoByCpf();
-                    break;
-                case "5":
-                    listAllMedicos();
-                    break;
-                case "6":
-                    return;
-                default:
-                    JOptionPane.showMessageDialog(null, "Opção inválida!");
+                case "1" -> adicionar();
+                case "2" -> atualizar();
+                case "3" -> remover();
+                case "4" -> buscar();
+                case "5" -> listar();
+                case "6" -> { return; }
+                default -> showError("Opção inválida!");
             }
         }
     }
 
-    /**
-     * Adiciona um novo médico solicitando dados ao usuário.
-     */
-    private void addMedico() {
-        String nome = readString("Nome do Médico:");
-        String cpf = readString("CPF do Médico:");
-        Date dataNascimento = readDate("Data de Nascimento do Médico:");
-        String crm = readString("CRM do Médico:");
-        String especialidade = readString("Especialidade do Médico:");
+    private void adicionar() {
+        String nome = readString("Nome do " + ENTIDADE + ":");
+        if (nome == null || nome.isEmpty()) {
+            showError("Nome é obrigatório!");
+            return;
+        }
+
+        String cpf = readString("CPF do " + ENTIDADE + ":");
+        if (cpf == null || !validarCPF(cpf)) return;
+
+        Date dataNascimento = readDate("Data de Nascimento do " + ENTIDADE);
+        if (dataNascimento == null) return;
+
+        String crm = readString("CRM do " + ENTIDADE + ":");
+        if (crm == null || crm.isEmpty()) {
+            showError("CRM é obrigatório!");
+            return;
+        }
+
+        String especialidade = readString("Especialidade do " + ENTIDADE + ":");
+        if (especialidade == null || especialidade.isEmpty()) {
+            showError("Especialidade é obrigatória!");
+            return;
+        }
 
         try {
-            medicoController.create(nome, cpf, dataNascimento, crm, especialidade);
-            JOptionPane.showMessageDialog(null, "Médico adicionado com sucesso!");
+            controller.create(nome, cpf, dataNascimento, crm, especialidade);
+            showSuccess(ENTIDADE + " " + SUCESSO_ADICIONAR);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
+            showError(e.getMessage());
         }
     }
 
-    /**
-     * Atualiza os dados de um médico existente solicitando dados ao usuário.
-     */
-    private void updateMedico() {
-        String cpf = readString("CPF do médico a ser atualizado:");
-        Medico medico = medicoController.read(cpf);
+    private void atualizar() {
+        String cpf = readString("CPF do " + ENTIDADE + " a ser atualizado:");
+        if (cpf == null || !validarCPF(cpf)) return;
+
+        Medico medico = controller.read(cpf);
         if (medico == null) {
-            JOptionPane.showMessageDialog(null, "Médico não encontrado!");
+            showError(ENTIDADE + " " + ERRO_NAO_ENCONTRADO);
             return;
         }
 
-        String nome = readString("Novo Nome do Médico:");
-        Date dataNascimento = readDate("Nova Data de Nascimento do Médico:");
-        String crm = readString("Novo CRM do Médico:");
-        String especialidade = readString("Nova Especialidade do Médico:");
+        String nome = readString("Novo Nome do " + ENTIDADE + ":");
+        if (nome != null && !nome.isEmpty()) medico.setNome(nome);
 
-        medico.setNome(nome);
-        medico.setDataDeNascimento(dataNascimento);
-        medico.setCrm(crm);
-        medico.setEspecialidade(especialidade);
+        Date dataNascimento = readDate("Nova Data de Nascimento do " + ENTIDADE);
+        if (dataNascimento != null) medico.setDataDeNascimento(dataNascimento);
 
-        medicoController.update(medico);
+        String crm = readString("Novo CRM do " + ENTIDADE + ":");
+        if (crm != null && !crm.isEmpty()) medico.setCrm(crm);
 
-        JOptionPane.showMessageDialog(null, "Médico atualizado com sucesso!");
+        String especialidade = readString("Nova Especialidade do " + ENTIDADE + ":");
+        if (especialidade != null && !especialidade.isEmpty()) medico.setEspecialidade(especialidade);
+
+        try {
+            controller.update(medico);
+            showSuccess(ENTIDADE + " " + SUCESSO_ATUALIZAR);
+        } catch (Exception e) {
+            showError(e.getMessage());
+        }
     }
 
-    /**
-     * Remove um médico existente solicitando o CPF ao usuário.
-     */
-    private void removeMedico() {
-        String cpf = readString("CPF do médico a ser removido:");
-        Medico medico = medicoController.read(cpf);
+    private void remover() {
+        String cpf = readString("CPF do " + ENTIDADE + " a ser removido:");
+        if (cpf == null || !validarCPF(cpf)) return;
+
+        Medico medico = controller.read(cpf);
         if (medico == null) {
-            JOptionPane.showMessageDialog(null, "Médico não encontrado!");
+            showError(ENTIDADE + " " + ERRO_NAO_ENCONTRADO);
             return;
         }
 
-        medicoController.delete(medico);
-        JOptionPane.showMessageDialog(null, "Médico removido com sucesso!");
-    }
+        if (!showConfirmation(CONFIRMAR_REMOCAO)) return;
 
-    /**
-     * Busca um médico pelo CPF e exibe suas informações.
-     */
-    private void searchMedicoByCpf() {
-        String cpf = readString("CPF do médico:");
-        Medico medico = medicoController.read(cpf);
-        if (medico == null) {
-            JOptionPane.showMessageDialog(null, "Médico não encontrado!");
-        } else {
-            JOptionPane.showMessageDialog(null, medico.toString());
+        try {
+            controller.delete(medico);
+            showSuccess(ENTIDADE + " " + SUCESSO_REMOVER);
+        } catch (Exception e) {
+            showError(e.getMessage());
         }
     }
 
-    /**
-     * Exibe todos os médicos e seus IDs usando JOptionPane.
-     */
-    private void listAllMedicos() {
-        List<Medico> medicos = medicoController.listAll();
+    private void buscar() {
+        String cpf = readString("CPF do " + ENTIDADE + ":");
+        if (cpf == null || !validarCPF(cpf)) return;
+
+        Medico medico = controller.read(cpf);
+        if (medico == null) {
+            showError(ENTIDADE + " " + ERRO_NAO_ENCONTRADO);
+            return;
+        }
+
+        showMessage(formatarMedico(medico));
+    }
+
+    private void listar() {
+        List<Medico> medicos = controller.listAll();
         if (medicos.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Nenhum médico cadastrado.");
-        } else {
-            StringBuilder sb = new StringBuilder();
-            sb.append("Lista de Médicos:\n");
-            for (Medico medico : medicos) {
-                sb.append("CPF: ").append(medico.getCpf())
-                        .append(", Nome: ").append(medico.getNome())
-                        .append(", CRM: ").append(medico.getCrm())
-                        .append(", Especialidade: ").append(medico.getEspecialidade()).append("\n");
-            }
-            JOptionPane.showMessageDialog(null, sb.toString());
+            showMessage("Nenhum " + ENTIDADE + " cadastrado.");
+            return;
         }
+
+        StringBuilder sb = new StringBuilder("Lista de " + ENTIDADE + "s:\n\n");
+        medicos.forEach(medico -> sb.append(formatarMedico(medico)).append("\n"));
+        showMessage(sb.toString());
+    }
+
+    private String formatarMedico(Medico medico) {
+        return String.format("""
+            CPF: %s
+            Nome: %s
+            Data Nascimento: %s
+            CRM: %s
+            Especialidade: %s""",
+                medico.getCpf(),
+                medico.getNome(),
+                formatDate(medico.getDataDeNascimento()),
+                medico.getCrm(),
+                medico.getEspecialidade());
+    }
+
+    private boolean validarCPF(String cpf) {
+        if (cpf == null || !cpf.matches("\\d{11}")) {
+            showError("CPF deve conter 11 dígitos!");
+            return false;
+        }
+        return true;
     }
 }

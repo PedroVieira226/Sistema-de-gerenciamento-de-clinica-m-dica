@@ -2,213 +2,206 @@ package view;
 
 import javax.swing.*;
 import java.util.ArrayList;
-import java.util.Date;
-import entities.Medicamento;
-import entities.Exame;
-import entities.Prescricao;
+import java.util.List;
+import entities.*;
 import controller.PrescricaoController;
 import controller.MedicamentoController;
 import controller.ExameController;
 
 /**
  * Classe para a visualização e interação com Prescrições.
+ 
  */
 public class PrescricaoView extends BaseView {
+    private final PrescricaoController controller;
+    private final MedicamentoController medicamentoController;
+    private final ExameController exameController;
+    private static final String ENTIDADE = "Prescrição";
 
-    private PrescricaoController prescricaoController;
-    private MedicamentoController medicamentoController;
-    private ExameController exameController;
-
-    /**
-     * Construtor para inicializar o controlador de prescrições e exibir o menu.
-     *
-     * @param prescricaoController O controlador de prescrições.
-     * @param medicamentoController O controlador de medicamentos.
-     * @param exameController O controlador de exames.
-     */
-    public PrescricaoView(PrescricaoController prescricaoController, MedicamentoController medicamentoController, ExameController exameController) {
-        this.prescricaoController = prescricaoController;
+    public PrescricaoView(PrescricaoController controller,
+                          MedicamentoController medicamentoController,
+                          ExameController exameController) {
+        this.controller = controller;
+        this.medicamentoController = medicamentoController;
+        this.exameController = exameController;
         showMenu();
     }
 
-    /**
-     * Exibe o menu principal para interação com o usuário.
-     */
     public void showMenu() {
-        String menu = "1. Adicionar Prescrição\n" +
-                "2. Atualizar Prescrição\n" +
-                "3. Remover Prescrição\n" +
-                "4. Buscar Prescrição por ID\n" +
-                "5. Listar todas as Prescrições\n" +
-                "6. Sair";
+        String menu = String.format("""
+            1. Adicionar %s
+            2. Atualizar %s
+            3. Remover %s
+            4. Buscar %s
+            5. Listar %ss
+            6. Sair""", ENTIDADE, ENTIDADE, ENTIDADE, ENTIDADE, ENTIDADE);
+
         while (true) {
             String option = readString(menu);
+            if (option == null) return;
+
             switch (option) {
-                case "1":
-                    addPrescricao();
-                    break;
-                case "2":
-                    updatePrescricao();
-                    break;
-                case "3":
-                    removePrescricao();
-                    break;
-                case "4":
-                    searchPrescricaoById();
-                    break;
-                case "5":
-                    listAllPrescricoes();
-                    break;
-                case "6":
-                    return;
-                default:
-                    JOptionPane.showMessageDialog(null, "Opção inválida!");
+                case "1" -> adicionar();
+                case "2" -> atualizar();
+                case "3" -> remover();
+                case "4" -> buscar();
+                case "5" -> listar();
+                case "6" -> { return; }
+                default -> showError("Opção inválida!");
             }
         }
     }
 
-    /**
-     * Adiciona uma nova prescrição solicitando IDs de medicamentos e nomes de exames ao usuário.
-     */
-    private void addPrescricao() {
-        ArrayList<Medicamento> medicamentosPrescritos = getMedicamentosFromUser();
-        ArrayList<Exame> examesPrescritos = getExamesFromUser();
+    private void adicionar() {
+        ArrayList<Medicamento> medicamentos = selecionarMedicamentos();
+        if (medicamentos == null) return;
+
+        ArrayList<Exame> exames = selecionarExames();
+        if (exames == null) return;
 
         try {
-            prescricaoController.create(medicamentosPrescritos, examesPrescritos);
-            JOptionPane.showMessageDialog(null, "Prescrição adicionada com sucesso!");
+            controller.create(medicamentos, exames);
+            showSuccess(ENTIDADE + " " + SUCESSO_ADICIONAR);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
+            showError(e.getMessage());
         }
     }
 
-    /**
-     * Atualiza os dados de uma prescrição existente solicitando IDs de medicamentos e nomes de exames ao usuário.
-     */
-    private void updatePrescricao() {
-        Integer id = readInt("ID da prescrição a ser atualizada:");
-        Prescricao prescricao = prescricaoController.read(id);
+    private void atualizar() {
+        Integer id = readInt("ID da " + ENTIDADE + " a ser atualizada:");
+        if (id == null) return;
+
+        Prescricao prescricao = controller.read(id);
         if (prescricao == null) {
-            JOptionPane.showMessageDialog(null, "Prescrição não encontrada!");
+            showError(ENTIDADE + " " + ERRO_NAO_ENCONTRADO);
             return;
         }
 
-        ArrayList<Medicamento> medicamentosPrescritos = getMedicamentosFromUser();
-        ArrayList<Exame> examesPrescritos = getExamesFromUser();
+        if (showConfirmation("Deseja atualizar os medicamentos?")) {
+            ArrayList<Medicamento> medicamentos = selecionarMedicamentos();
+            if (medicamentos != null) {
+                prescricao.setMedicamentosPrescritos(medicamentos);
+            }
+        }
 
-        prescricao = new Prescricao(medicamentosPrescritos, examesPrescritos);
+        if (showConfirmation("Deseja atualizar os exames?")) {
+            ArrayList<Exame> exames = selecionarExames();
+            if (exames != null) {
+                prescricao.setExamesPrescritos(exames);
+            }
+        }
 
         try {
-            prescricaoController.update(prescricao);
-            JOptionPane.showMessageDialog(null, "Prescrição atualizada com sucesso!");
+            controller.update(prescricao);
+            showSuccess(ENTIDADE + " " + SUCESSO_ATUALIZAR);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
+            showError(e.getMessage());
         }
     }
 
-    /**
-     * Remove uma prescrição existente solicitando o ID ao usuário.
-     */
-    private void removePrescricao() {
-        Integer id = readInt("ID da prescrição a ser removida:");
-        try {
-            prescricaoController.delete(id);
-            JOptionPane.showMessageDialog(null, "Prescrição removida com sucesso!");
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-        }
-    }
+    private void remover() {
+        Integer id = readInt("ID da " + ENTIDADE + " a ser removida:");
+        if (id == null) return;
 
-    /**
-     * Busca uma prescrição pelo ID e exibe suas informações.
-     */
-    private void searchPrescricaoById() {
-        Integer id = readInt("ID da prescrição:");
-        Prescricao prescricao = prescricaoController.read(id);
+        Prescricao prescricao = controller.read(id);
         if (prescricao == null) {
-            JOptionPane.showMessageDialog(null, "Prescrição não encontrada!");
-        } else {
-            JOptionPane.showMessageDialog(null, prescricao.toString());
+            showError(ENTIDADE + " " + ERRO_NAO_ENCONTRADO);
+            return;
+        }
+
+        if (!showConfirmation(CONFIRMAR_REMOCAO)) return;
+
+        try {
+            controller.delete(prescricao);
+            showSuccess(ENTIDADE + " " + SUCESSO_REMOVER);
+        } catch (Exception e) {
+            showError(e.getMessage());
         }
     }
 
-    /**
-     * Exibe todas as prescrições e seus IDs usando JOptionPane.
-     */
-    private void listAllPrescricoes() {
-        ArrayList<Prescricao> prescricoes = (ArrayList<Prescricao>) prescricaoController.listAll();
+    private void buscar() {
+        Integer id = readInt("ID da " + ENTIDADE + ":");
+        if (id == null) return;
+
+        Prescricao prescricao = controller.read(id);
+        if (prescricao == null) {
+            showError(ENTIDADE + " " + ERRO_NAO_ENCONTRADO);
+            return;
+        }
+
+        showMessage(formatarPrescricao(prescricao));
+    }
+
+    private void listar() {
+        List<Prescricao> prescricoes = controller.listAll();
         if (prescricoes.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Nenhuma prescrição cadastrada.");
-        } else {
-            StringBuilder sb = new StringBuilder();
-            sb.append("Lista de Prescrições:\n");
-            for (Prescricao prescricao : prescricoes) {
-                sb.append("ID: ").append(prescricao.getIdPrescricao())
-                        .append(", Medicamentos: ").append(prescricao.getMedicamentosPrescritos())
-                        .append(", Exames: ").append(prescricao.getExamesPrescritos()).append("\n");
-            }
-            JOptionPane.showMessageDialog(null, sb.toString());
+            showMessage("Nenhuma " + ENTIDADE + " cadastrada.");
+            return;
         }
+
+        StringBuilder sb = new StringBuilder("Lista de " + ENTIDADE + "s:\n\n");
+        prescricoes.forEach(prescricao -> sb.append(formatarPrescricao(prescricao)).append("\n"));
+        showMessage(sb.toString());
     }
 
-    /**
-     * Obtém uma lista de medicamentos a partir dos IDs fornecidos pelo usuário.
-     *
-     * @return A lista de medicamentos.
-     */
-    private ArrayList<Medicamento> getMedicamentosFromUser() {
-        ArrayList<Medicamento> medicamentosPrescritos = new ArrayList<>();
-        String medicamentoIdStr;
-        do {
-            medicamentoIdStr = readString("ID do Medicamento Prescrito (ou deixe em branco para finalizar):");
-            if (!medicamentoIdStr.isEmpty()) {
-                Medicamento medicamento = medicamentoController.read(Integer.parseInt(medicamentoIdStr));
-                if (medicamento != null) {
-                    medicamentosPrescritos.add(medicamento);
-                } else {
-                    JOptionPane.showMessageDialog(null, "Medicamento não encontrado!");
-                }
-            }
-        } while (!medicamentoIdStr.isEmpty());
-        return medicamentosPrescritos;
-    }
-
-    /**
-     * Obtém uma lista de exames a partir dos nomes fornecidos pelo usuário.
-     *
-     * @return A lista de exames.
-     */
-    private ArrayList<Exame> getExamesFromUser() {
-        ArrayList<Exame> examesPrescritos = new ArrayList<>();
-        String exameNome;
-        do {
-            exameNome = readString("Nome do Exame Prescrito (ou deixe em branco para finalizar):");
-            if (!exameNome.isEmpty()) {
-                Date dataPrescricao = new Date();
-                Date dataRealizacao = readDate("Data de Realização do Exame:");
-                String resultado = readString("Resultado do Exame:");
-                Double preco = readDoubleInput("Preço do Exame:");
-                Exame exame = new Exame(exameNome, dataPrescricao, dataRealizacao, resultado, preco);
-                examesPrescritos.add(exame);
-            }
-        } while (!exameNome.isEmpty());
-        return examesPrescritos;
-    }
-
-    /**
-     * Lê um valor Double do usuário.
-     *
-     * @param message A mensagem a ser exibida ao usuário.
-     * @return O valor Double inserido pelo usuário.
-     */
-    private Double readDoubleInput(String message) {
+    private ArrayList<Medicamento> selecionarMedicamentos() {
+        ArrayList<Medicamento> medicamentos = new ArrayList<>();
         while (true) {
-            try {
-                String input = JOptionPane.showInputDialog(message);
-                return Double.parseDouble(input);
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(null, "Entrada inválida. Por favor, insira um número.");
+            Integer id = readInt("ID do Medicamento (0 para finalizar):");
+            if (id == null || id == 0) break;
+
+            Medicamento medicamento = medicamentoController.read(id);
+            if (medicamento == null) {
+                showError("Medicamento não encontrado!");
+                continue;
             }
+            medicamentos.add(medicamento);
+            showSuccess("Medicamento adicionado à prescrição!");
         }
+        return medicamentos.isEmpty() ? null : medicamentos;
+    }
+
+    private ArrayList<Exame> selecionarExames() {
+        ArrayList<Exame> exames = new ArrayList<>();
+        while (true) {
+            Integer id = readInt("ID do Exame (0 para finalizar):");
+            if (id == null || id == 0) break;
+
+            Exame exame = exameController.read(id);
+            if (exame == null) {
+                showError("Exame não encontrado!");
+                continue;
+            }
+            exames.add(exame);
+            showSuccess("Exame adicionado à prescrição!");
+        }
+        return exames.isEmpty() ? null : exames;
+    }
+
+    private String formatarPrescricao(Prescricao prescricao) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("ID: %d\n\n", prescricao.getIdPrescricao()));
+
+        sb.append("Medicamentos Prescritos:\n");
+        if (prescricao.getMedicamentosPrescritos().isEmpty()) {
+            sb.append("- Nenhum medicamento prescrito\n");
+        } else {
+            prescricao.getMedicamentosPrescritos().forEach(med ->
+                    sb.append(String.format("- %s (ID: %d)\n",
+                            med.getNome(), med.getIdMedicamento()))
+            );
+        }
+
+        sb.append("\nExames Prescritos:\n");
+        if (prescricao.getExamesPrescritos().isEmpty()) {
+            sb.append("- Nenhum exame prescrito\n");
+        } else {
+            prescricao.getExamesPrescritos().forEach(exame ->
+                    sb.append(String.format("- %s (ID: %d)\n",
+                            exame.getTipoDoExame(), exame.getIdExame()))
+            );
+        }
+
+        return sb.toString();
     }
 }
