@@ -4,36 +4,35 @@ import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Calendar;
 import entities.Consulta;
-import controller.ConsultaController;
-import controller.MedicoController;
-import controller.PacienteController;
-import controller.PrescricaoController;
+import controller.*;
 import enums.StatusConsulta;
 
-/**
- * Classe para a visualização e interação com Consultas.
- */
 public class ConsultaView extends BaseView {
+    private final ConsultaController consultaController;
+    private final MedicoController medicoController;
+    private final PacienteController pacienteController;
+    private final PrescricaoController prescricaoController;
 
-    private ConsultaController consultaController;
-    private PrescricaoController prescricaoController;
-
-    /**
-     * Construtor para inicializar os controladores necessários e exibir o menu.
-     */
     public ConsultaView(ConsultaController consultaController,
                         MedicoController medicoController,
                         PacienteController pacienteController,
                         PrescricaoController prescricaoController) {
+        // Validação dos controllers
+        if (consultaController == null || medicoController == null ||
+                pacienteController == null || prescricaoController == null) {
+            throw new IllegalArgumentException("Nenhum controller pode ser nulo!");
+        }
+
         this.consultaController = consultaController;
+        this.medicoController = medicoController;
+        this.pacienteController = pacienteController;
         this.prescricaoController = prescricaoController;
         showMenu();
     }
 
-    /**
-     * Exibe o menu principal para interação com o usuário.
-     */
     public void showMenu() {
         String menu = """
                 Sistema de Gestão de Consultas
@@ -50,79 +49,137 @@ public class ConsultaView extends BaseView {
 
         while (true) {
             String option = readString(menu);
-            switch (option) {
-                case "1":
-                    agendarConsulta();
-                    break;
-                case "2" :
-                    atualizarConsulta();
-                    break;
-                case "3" :
-                    cancelarConsulta();
-                    break;
-                case "4" :
-                    buscarConsultaPorId();
-                    break;
-                case "5" :
-                    listarTodasConsultas();
-                    break;
-                case "6" :
-                    adicionarPrescricaoConsulta();
-                    break;
-                case "7" : { return; }
-                default : JOptionPane.showMessageDialog(null, "Opção inválida!");
+            if (option == null) {
+                return; // Usuário clicou em cancelar
+            }
+
+            try {
+                switch (option) {
+                    case "1" -> agendarConsulta();
+                    case "2" -> atualizarConsulta();
+                    case "3" -> cancelarConsulta();
+                    case "4" -> buscarConsultaPorId();
+                    case "5" -> listarTodasConsultas();
+                    case "6" -> adicionarPrescricaoConsulta();
+                    case "7" -> { return; }
+                    default -> showError("Opção inválida!");
+                }
+            } catch (Exception e) {
+                showError("Erro inesperado: " + e.getMessage());
             }
         }
     }
 
-    /**
-     * Agenda uma nova consulta solicitando dados ao usuário.
-     */
     private void agendarConsulta() {
         try {
+            // Validação do tipo de consulta
             String tipoConsulta = readString("Tipo de Consulta (Especialidade):");
-            Date dataConsulta = readDate("Data da Consulta");
-
-            // Lê hora e minuto para criar LocalDateTime
-            int hora = Integer.parseInt(readString("Hora da consulta (0-23):"));
-            int minuto = Integer.parseInt(readString("Minuto da consulta (0-59):"));
-
-            if (hora < 0 || hora > 23 || minuto < 0 || minuto > 59) {
-                throw new IllegalArgumentException("Horário inválido!");
+            if (tipoConsulta == null || tipoConsulta.trim().isEmpty()) {
+                showError("Tipo de consulta é obrigatório!");
+                return;
             }
 
-            LocalDateTime horarioInicio = LocalDateTime.now()
-                    .withHour(hora)
-                    .withMinute(minuto);
+            // Validação da data
+            Date dataConsulta = readDate("Data da Consulta");
+            if (dataConsulta == null) {
+                return;
+            }
 
-            LocalDateTime duracao = horarioInicio.plusMinutes(30); // Duração padrão de 30 minutos
-            String cpfPaciente = readString("CPF do Paciente:");
-            String cpfMedico = readString("CPF do Médico:");
-            double valorConsulta = Double.parseDouble(readString("Valor da Consulta (R$):"));
+            // Validação se a data não é anterior a hoje
+            if (dataConsulta.before(new Date())) {
+                showError("A data da consulta não pode ser anterior a hoje!");
+                return;
+            }
 
-            // Arrays vazios para medicamentos e exames iniciais
-            ArrayList<Integer> medicamentosIds = new ArrayList<>();
-            ArrayList<Integer> examesIds = new ArrayList<>();
+            // Leitura e validação da hora
+            String horaStr = readString("Hora da consulta (0-23):");
+            if (horaStr == null) return;
 
-            consultaController.create(
-                    tipoConsulta,
-                    dataConsulta,
-                    horarioInicio,
-                    duracao,
-                    cpfPaciente,
-                    cpfMedico,
-                    valorConsulta,
-                    StatusConsulta.AGENDADA,
-                    medicamentosIds,
-                    examesIds
+            String minutoStr = readString("Minuto da consulta (0-59):");
+            if (minutoStr == null) return;
+
+            int hora, minuto;
+            try {
+                hora = Integer.parseInt(horaStr);
+                minuto = Integer.parseInt(minutoStr);
+            } catch (NumberFormatException e) {
+                showError("Horário inválido! Use apenas números.");
+                return;
+            }
+
+            if (hora < 0 || hora > 23 || minuto < 0 || minuto > 59) {
+                showError("Horário inválido!");
+                return;
+            }
+
+            // Criação do LocalDateTime combinando data e hora
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(dataConsulta);
+            LocalDateTime horarioInicio = LocalDateTime.of(
+                    cal.get(Calendar.YEAR),
+                    cal.get(Calendar.MONTH) + 1,
+                    cal.get(Calendar.DAY_OF_MONTH),
+                    hora,
+                    minuto
             );
 
-            JOptionPane.showMessageDialog(null, "Consulta agendada com sucesso!");
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(null, "Por favor, insira um valor numérico válido.");
+            // Validação do CPF do paciente
+            String cpfPaciente = readString("CPF do Paciente (11 dígitos):");
+            if (cpfPaciente == null || !validarCPF(cpfPaciente)) {
+                return;
+            }
+
+            // Validação do CPF do médico
+            String cpfMedico = readString("CPF do Médico (11 dígitos):");
+            if (cpfMedico == null || !validarCPF(cpfMedico)) {
+                return;
+            }
+
+            // Validação do valor da consulta
+            String valorStr = readString("Valor da Consulta (R$):");
+            if (valorStr == null) return;
+
+            double valorConsulta;
+            try {
+                valorConsulta = Double.parseDouble(valorStr);
+                if (valorConsulta < 0) {
+                    showError("O valor da consulta não pode ser negativo!");
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                showError("Valor inválido! Use apenas números e ponto decimal.");
+                return;
+            }
+
+            // Tenta criar a consulta com tratamento de erro específico
+            try {
+                consultaController.create(
+                        tipoConsulta,
+                        dataConsulta,
+                        horarioInicio,
+                        horarioInicio.plusMinutes(30),
+                        cpfPaciente,
+                        cpfMedico,
+                        valorConsulta,
+                        StatusConsulta.AGENDADA,
+                        new ArrayList<>(),
+                        new ArrayList<>()
+                );
+                showSuccess("Consulta agendada com sucesso!");
+            } catch (Exception e) {
+                showError("Erro ao agendar consulta: " + e.getMessage());
+            }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Erro ao agendar consulta: " + e.getMessage());
+            showError("Erro ao processar agendamento: " + e.getMessage());
         }
+    }
+
+    private boolean validarCPF(String cpf) {
+        if (cpf == null || !cpf.matches("\\d{11}")) {
+            showError("CPF deve conter exatamente 11 dígitos numéricos!");
+            return false;
+        }
+        return true;
     }
 
     /**
