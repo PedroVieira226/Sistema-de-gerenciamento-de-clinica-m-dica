@@ -17,6 +17,12 @@ public class Main {
                 MedicamentoController medicamentoController = new MedicamentoController();
                 PrescricaoController prescricaoController = new PrescricaoController();
 
+                // Verificação se os controllers foram inicializados corretamente
+                if (medicoController == null || pacienteController == null || consultaController == null ||
+                        exameController == null || medicamentoController == null || prescricaoController == null) {
+                    throw new Exception("Erro na inicialização dos controllers.");
+                }
+
                 while (true) {
                     String[] opcoes = {
                             "Gerenciar Médicos",
